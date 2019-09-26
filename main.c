@@ -3,33 +3,34 @@
 #include <time.h>
 
 
-enum dimensions {Total=9, Side=3};
+enum dimensions {X=3, Y=3};
 typedef enum {True='t', False='f'} Bool;
 typedef enum {Left, Up, Right, Down} Move;
+int Total = X*Y;
 int NMoves = 4;
+
 Bool Print = True;
 Bool Clear = True;
 
 
 int *shuffled_array(int dim);
-void print_board(int *board, int total, int side);
-int solve_randomly(int *board, int total, int side);
-Bool check_solution(int *board, int total);
-int find_zero(int *board, int total);
-Bool check_valid_move(int total, int side, int i, Move move);
+void print_board(int *board);
+int solve_randomly(int *board);
+Bool check_solution(int *board);
+int find_zero(int *board);
+Bool check_valid_move(int i, Move move);
 Move random_move();
-int do_move(int *board, int side, int i, Move move);
+int do_move(int *board, int i, Move move);
 void switch_two(int *a, int *b);
 
 
 int main (void){
 	int *board;
-	int total = Total, side = Side;
 
 	srand(time(NULL));
 
 	board = shuffled_array(Total);
-	solve_randomly(board, total, side);
+	solve_randomly(board);
 
 	return 0;
 }
@@ -54,14 +55,14 @@ int *shuffled_array(int dim){
 }
 
 
-void print_board(int *board, int total, int side){
+void print_board(int *board){
 	int i;
 
-	for(i=0; i<total; i++){
-		printf("%d ", board[i]);
+	for(i=0; i<Total; i++){
+		printf("%d\t", board[i]);
 
-		if((i+1)%side == 0){
-			putchar('\n');
+		if((i+1)%X == 0){
+			printf("\n\n");
 		}
 	}
 
@@ -71,29 +72,28 @@ void print_board(int *board, int total, int side){
 }
 
 
-int solve_randomly(int *board, int total, int side){
+int solve_randomly(int *board){
 	int i;
 	unsigned long nsteps = 0;
-	Bool solved = False;
 	Move move;
 
-	i = find_zero(board, total);
+	i = find_zero(board);
 
-	print_board(board, total, side);
+	print_board(board);
 
-	while ((solved = check_solution(board, total)) != True){
+	while (check_solution(board) != True){
 		do{
 			move = random_move();
-		}while(check_valid_move(total, side, i, move) != True);
+		}while(check_valid_move(i, move) != True);
 
-		i = do_move(board, side, i, move);
+		i = do_move(board, i, move);
 		nsteps++;
 
 		if(Print == True){
 			if(Clear == True)
 				system("clear");
 			printf("Iteration %lu:\n", nsteps);
-			print_board(board, total, side);
+			print_board(board);
 		}
 	}
 
@@ -103,11 +103,11 @@ int solve_randomly(int *board, int total, int side){
 }
 
 
-Bool check_solution(int *board, int total){
+Bool check_solution(int *board){
 	int i;
 	Bool solved = True;
 
-	for(i=0; i<total; i++){
+	for(i=0; i<Total; i++){
 		if(board[i] != i){
 			solved = False;
 			break;
@@ -118,10 +118,10 @@ Bool check_solution(int *board, int total){
 }
 
 
-int find_zero(int *board, int total){
+int find_zero(int *board){
 	int i;
 	
-	for(i=0; i<total; i++){
+	for(i=0; i<Total; i++){
 		if(board[i] == 0)
 			break;
 	}
@@ -130,27 +130,27 @@ int find_zero(int *board, int total){
 }
 
 
-Bool check_valid_move(int total, int side, int i, Move move){
+Bool check_valid_move(int i, Move move){
 	Bool valid = True;
 
 	switch (move){
 		case Left:
-			if(i%side == 0)
+			if(i%X == 0)
 				valid = False;
 			break;
 
 		case Up:
-			if(i<side)
+			if(i<X)
 				valid = False;
 			break;
 
 		case Right:
-			if((i+1)%side == 0)
+			if((i+1)%X == 0)
 				valid = False;
 			break;
 
 		case Down:
-			if(i >= side*(side-1))
+			if(i >= X*(Y-1))
 				valid = False;
 			break;
 	}
@@ -166,7 +166,7 @@ Move random_move(){
 }
 
 
-int do_move(int *board, int side, int i, Move move){
+int do_move(int *board, int i, Move move){
 	int *a, *b;
 
 	a = &(board[i]);
@@ -177,7 +177,7 @@ int do_move(int *board, int side, int i, Move move){
 			break;
 
 		case Up:
-			i = i-side;
+			i = i-X;
 			break;
 
 		case Right:
@@ -185,7 +185,7 @@ int do_move(int *board, int side, int i, Move move){
 			break;
 
 		case Down:
-			i = i+side;
+			i = i+X;
 			break;
 	}
 
